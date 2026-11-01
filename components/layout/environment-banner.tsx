@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getCatalogMode } from '@/lib/catalog/repository'
-import { isDevAuthEnabled, isSsoConfigured } from '@/lib/config/env'
+import { isDemoAccessEnabled, isDevAuthEnabled, isSsoConfigured } from '@/lib/config/env'
 
 /** Persistent, honest status strip: which integrations are actually active. */
 export function EnvironmentBanner() {
@@ -10,8 +10,9 @@ export function EnvironmentBanner() {
   if (!seed && !dev && sso) return null
   const parts: string[] = []
   if (seed) parts.push('Read-only seed catalog — MongoDB is not configured, so edits cannot be saved')
-  if (dev) parts.push('Development-only accounts enabled')
-  if (!sso) parts.push('Corporate SSO not configured')
+  if (isDemoAccessEnabled()) parts.push('Demonstration mode — demo accounts active, corporate SSO not configured')
+  else if (dev) parts.push('Development-only accounts enabled')
+  else if (!sso) parts.push('Corporate SSO not configured')
   return (
     <div role="status" className="border-b border-yellow-300 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-100">
       <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 text-xs sm:px-6 lg:px-8">

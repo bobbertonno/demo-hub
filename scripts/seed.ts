@@ -4,11 +4,7 @@
  * are never overwritten. Usage: pnpm db:seed
  */
 import { MongoClient } from 'mongodb'
-import { runMigrations } from '../lib/db/migrations'
-import { COLLECTIONS } from '../lib/db/mongo-names'
-import { DemoRecord } from '../lib/schemas/manifest'
-import { seedCapabilities } from '../lib/seed/capabilities'
-import { seedDemos } from '../lib/seed/demos'
+import { bootstrapCatalog } from '../lib/db/bootstrap'
 
 async function main() {
   const uri = process.env.MONGODB_URI
@@ -17,23 +13,10 @@ async function main() {
   await client.connect()
   try {
     const db = client.db(process.env.MONGODB_DB || 'demo_hub')
-    const applied = await runMigrations(db, (m) => console.log(`migration: ${m}`))
-    console.log(`migrations applied this run: ${applied.length}`)
-
-    let inserted = 0
-    for (const demo of seedDemos) {
-      const valid = DemoRecord.parse(demo)
-      const res = await db.collection(COLLECTIONS.demos).updateOne({ slug: valid.slug }, { $setOnInsert: valid }, { upsert: true })
-      if (res.upsertedCount) inserted++
-    }
-    console.log(`demos: ${inserted} inserted, ${seedDemos.length - inserted} already present`)
-
-    let caps = 0
-    for (const cap of seedCapabilities) {
-      const res = await db.collection(COLLECTIONS.capabilities).updateOne({ id: cap.id }, { $setOnInsert: cap }, { upsert: true })
-      if (res.upsertedCount) caps++
-    }
-    console.log(`capabilities: ${caps} inserted, ${seedCapabilities.length - caps} already present`)
+    const r = await bootstrapCatalog(db, (m) => console.log(`migration: ${m}`))
+    console.log(`migrations applied this run: ${r.migrationsApplied.length}`)
+    console.log(`demos: ${r.demosInserted} inserted, ${r.demosAlreadyPresent} already present`)
+    console.log(`capabilities: ${r.capabilitiesInserted} inserted, ${r.capabilitiesAlreadyPresent} already present`)
   } finally {
     await client.close()
   }

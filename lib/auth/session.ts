@@ -1,6 +1,6 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
-import { getEnv, isDatabaseConfigured, isDevAuthEnabled, isProductionLike } from '@/lib/config/env'
+import { getEnv, isDatabaseConfigured, isDemoAccessEnabled, isDevAuthEnabled, isProductionLike } from '@/lib/config/env'
 import { COLLECTIONS, getCollection } from '@/lib/db/mongo'
 import { auth, isAuthAvailable } from './auth'
 import { DEV_ACCOUNTS, ROLES, hasRole, type HubUser, type Role } from './roles'
@@ -46,7 +46,7 @@ export async function getCurrentUser(): Promise<HubUser | null> {
 
 /** Browsing requires authentication in any production-like environment. */
 export function browsingRequiresAuth(): boolean {
-  return isProductionLike()
+  return isProductionLike() && !isDemoAccessEnabled()
 }
 
 export type AccessResult = { user: HubUser | null; anonymousLocal: boolean }
