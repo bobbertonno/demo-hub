@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { AccessState } from '@/components/admin/access-state'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { AuditTable } from '@/components/admin/audit-table'
+import { InitializeCatalog } from '@/components/admin/initialize-catalog'
 import { ProposalActions } from '@/components/admin/proposal-actions'
 import { formatDateTime } from '@/components/shared/page'
 import { StatusBadge } from '@/components/shared/status-badges'
@@ -56,6 +57,7 @@ export default async function AdminDashboardPage() {
         </Link>
       }
     >
+      {isAdmin && mode === 'database' ? <InitializeCatalog empty={demos.length === 0} /> : null}
       {degraded ? (
         <p role="alert" className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-foreground">
           {degraded}
