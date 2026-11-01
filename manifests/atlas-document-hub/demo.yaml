@@ -1,0 +1,113 @@
+# demo.yaml — example manifest for Atlas Document Hub
+# Place this file at the root of the demo repository. Status DRAFT until verified.
+# Validate with: pnpm manifests:validate
+id: atlas-document-hub
+slug: atlas-document-hub
+title: Atlas Document Hub
+tagline: Document management with metadata filtering, full-text and semantic search on MongoDB Atlas.
+summary: A document management solution that stores document metadata in MongoDB, offers structured filtering, Atlas
+  Search full-text search and Atlas Vector Search semantic retrieval, with Voyage AI embeddings and configurable
+  external object storage for binary content.
+businessProblem: Enterprises keep contracts, policies and operational documents across disconnected file shares and
+  content systems. Finding the right document requires knowing where it lives and what it is called; metadata is
+  inconsistent and semantic questions ("documents about supplier liability caps") cannot be answered with keyword search
+  alone.
+solution: "MongoDB becomes the metadata and search layer: each document is represented by a rich metadata document with
+  its embedding, while the binary file remains in a configurable object store. Users combine structured filters,
+  relevance-ranked full-text search and vector similarity in a single query surface."
+industry: Cross-industry
+category: Document Management
+useCases:
+  - Document management
+  - Enterprise search
+  - Semantic retrieval
+tags:
+  - documents
+  - search
+  - embeddings
+  - object-storage
+  - kafka-simulator
+capabilities:
+  - capability: atlas
+    whyUsed: Managed cluster hosting metadata, search and vector indexes in Atlas Connected Mode.
+    businessValue: No separate search infrastructure to operate.
+    verified: false
+  - capability: crud
+    whyUsed: Document metadata records with flexible, per-type attributes.
+    businessValue: New document types without schema migrations.
+    verified: false
+  - capability: atlas-search
+    whyUsed: Full-text search over titles, extracted text and metadata.
+    businessValue: Relevance-ranked results with facets.
+    verified: false
+  - capability: vector-search
+    whyUsed: Semantic retrieval of documents by meaning.
+    businessValue: Answers natural-language questions keyword search misses.
+    verified: false
+  - capability: voyage-ai
+    whyUsed: Automated embeddings for document content.
+    businessValue: High-quality retrieval without hand-tuned features.
+    verified: false
+  - capability: kafka
+    whyUsed: A Kafka event simulator emits document lifecycle events.
+    businessValue: Shows event-driven ingestion patterns. Simulated only.
+    verified: false
+architecture:
+  overview: Binary content lives in a configurable external object store; MongoDB Atlas stores document metadata,
+    extracted text and embeddings. A document generator and initial-load process seed realistic data. A Kafka event
+    simulator produces lifecycle events (created, updated, archived). A configuration wizard captures Atlas and object
+    storage settings.
+  dataFlow:
+    - Document generator / initial load creates sample documents and uploads binaries to object storage.
+    - Metadata, extracted text and storage references are written to MongoDB.
+    - Embeddings are generated with Voyage AI and stored alongside metadata.
+    - Kafka simulator emits lifecycle events that update document state.
+    - Users query with structured filters, Atlas Search and Vector Search.
+  diagrams:
+    - id: adh-overview
+      title: Atlas Document Hub — logical architecture
+      description: Illustrative logical architecture. Confirm component names against the repository once connected.
+      mermaid: |-
+        flowchart LR
+          U[User / Browser] --> APP[Document Hub App]
+          WIZ[Configuration Wizard] --> APP
+          GEN[Document Generator\nInitial Load] --> OS[(External Object Storage)]
+          GEN --> APP
+          K[Kafka Event Simulator] -- lifecycle events --> APP
+          APP -- metadata & text --> DB[(MongoDB Atlas\nmetadata collection)]
+          APP -- embed --> V[Voyage AI]
+          V -- vectors --> DB
+          DB --- S[Atlas Search index]
+          DB --- VS[Vector Search index]
+          APP -- signed references --> OS
+      provenance: catalog
+      illustrative: true
+screenshots: []
+repository: null
+defaultBranch: main
+readmePath: README.md
+prerequisites:
+  - name: Git
+  - name: Node.js
+    check: Version to be confirmed from repository
+  - name: Docker
+    check: Required only if the repository provides containers
+  - name: MongoDB Atlas project
+    check: Atlas Connected Mode only
+  - name: Object storage bucket
+    check: Atlas Connected Mode only
+localSetup: []
+atlasSetup: []
+configuration: []
+demoModes:
+  - local-demo
+  - atlas-connected
+themeMode: mongodb
+maintainer:
+  name: Solutions Architecture Team
+  team: MongoDB Solutions Architecture
+maturity: prototype
+difficulty: intermediate
+documentationStatus: missing
+verificationTimestamp: null
+releaseVersion: null

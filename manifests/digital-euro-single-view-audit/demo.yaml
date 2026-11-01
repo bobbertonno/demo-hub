@@ -1,0 +1,105 @@
+# demo.yaml — example manifest for Digital Euro Single View Audit
+# Place this file at the root of the demo repository. Status DRAFT until verified.
+# Validate with: pnpm manifests:validate
+id: digital-euro-single-view-audit
+slug: digital-euro-single-view-audit
+title: Digital Euro Single View Audit
+tagline: Operational single view and audit layer for digital euro events.
+summary: MongoDB as an operational single view and audit layer for digital euro events. A simulator publishes to five
+  Kafka topics; events land in five MongoDB collections and are correlated in near real time into customer journeys,
+  state transitions, notifications, failures and reconciliation views.
+businessProblem: Digital currency onboarding involves many systems emitting events about the same customer. Without a
+  correlated view, operations cannot answer "where is this customer in their journey?" or explain failures, and
+  reconciliation across systems is slow.
+solution: Events from each topic are stored in dedicated MongoDB collections and correlated by customer and journey
+  identifiers to reconstruct state transitions, detect failures and support reconciliation and audit queries.
+industry: Financial Services
+category: Event-Driven Architecture
+useCases:
+  - Single view
+  - Audit
+  - Event correlation
+  - Reconciliation
+tags:
+  - digital-euro
+  - events
+  - audit
+  - kafka-simulator
+  - single-view
+capabilities:
+  - capability: crud
+    whyUsed: Five collections for operational event categories.
+    businessValue: Clear separation of event types with flexible payloads.
+    verified: false
+  - capability: aggregation
+    whyUsed: Near-real-time correlation of events into journeys and reconciliation views.
+    businessValue: Explains customer state across systems.
+    verified: false
+  - capability: kafka
+    whyUsed: Simulated Kafka topics feed the event store.
+    businessValue: Demonstrates event-driven ingestion. Simulated only.
+    verified: false
+  - capability: atlas-search
+    whyUsed: Full-text search over events — only where implemented in the repository.
+    businessValue: Investigators find events quickly.
+    verified: false
+  - capability: vector-search
+    whyUsed: Semantic search — only where implemented in the repository.
+    businessValue: To be confirmed.
+    verified: false
+architecture:
+  overview: "The simulator publishes events to five topics: onboarding-events, offboarding-events, dean-assignment,
+    notification-outbound and error-dead-letter. Each topic maps to a MongoDB collection for its operational event
+    category. A correlation layer joins events by customer and journey identifiers to produce journeys, state
+    transitions and reconciliation views."
+  dataFlow:
+    - Simulator generates customer journeys and publishes events to the five topics.
+    - Consumers persist each topic into its own collection.
+    - Correlation pipelines reconstruct journeys and state transitions.
+    - Failures from error-dead-letter are linked to the originating journey.
+    - Reconciliation views compare expected versus observed transitions.
+  diagrams:
+    - id: de-topics
+      title: Topics to collections
+      description: Topic names as specified. Collection names to be confirmed from the repository.
+      mermaid: |-
+        flowchart LR
+          SIM[Event Simulator] --> T1[[onboarding-events]]
+          SIM --> T2[[offboarding-events]]
+          SIM --> T3[[dean-assignment]]
+          SIM --> T4[[notification-outbound]]
+          SIM --> T5[[error-dead-letter]]
+          T1 --> C1[(onboarding collection)]
+          T2 --> C2[(offboarding collection)]
+          T3 --> C3[(dean assignment collection)]
+          T4 --> C4[(notification collection)]
+          T5 --> C5[(error collection)]
+          C1 & C2 & C3 & C4 & C5 --> COR[Correlation pipelines]
+          COR --> SV[Single view: journeys, states, reconciliation]
+      provenance: catalog
+      illustrative: true
+screenshots: []
+repository: null
+defaultBranch: main
+readmePath: README.md
+prerequisites:
+  - name: Git
+  - name: Node.js or runtime
+    check: To be confirmed from repository
+  - name: MongoDB Atlas project
+    check: Atlas Connected Mode only
+localSetup: []
+atlasSetup: []
+configuration: []
+demoModes:
+  - local-demo
+  - atlas-connected
+themeMode: mongodb
+maintainer:
+  name: Solutions Architecture Team
+  team: MongoDB Solutions Architecture
+maturity: prototype
+difficulty: advanced
+documentationStatus: missing
+verificationTimestamp: null
+releaseVersion: null

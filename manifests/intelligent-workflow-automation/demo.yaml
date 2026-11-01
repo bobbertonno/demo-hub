@@ -1,0 +1,113 @@
+# demo.yaml — example manifest for Intelligent Workflow Automation
+# Place this file at the root of the demo repository. Status DRAFT until verified.
+# Validate with: pnpm manifests:validate
+id: intelligent-workflow-automation
+slug: intelligent-workflow-automation
+title: Intelligent Workflow Automation
+tagline: Classify, route and audit enterprise workflows from simulated Remedy tickets.
+summary: Monitor and manage enterprise workflows originating from simulated Remedy tickets. Tickets are classified using
+  Voyage AI embeddings and MongoDB Vector Search, routed automatically or via human-in-the-loop review, processed,
+  notified and closed with a full audit trail.
+businessProblem: Insurance operations receive high volumes of tickets from many agencies. Manual triage is slow and
+  inconsistent, routing errors cause rework, and auditors need a reliable record of every decision and state change.
+solution: Each ticket becomes a MongoDB document enriched with an embedding. Vector Search finds similar historical
+  tickets to classify and suggest a route; confident results are routed automatically, uncertain ones go to a human
+  reviewer. Every transition is appended to an audit trail.
+industry: Insurance
+category: Workflow Orchestration
+useCases:
+  - Ticket triage
+  - Workflow orchestration
+  - Human-in-the-loop AI
+  - Audit trail
+tags:
+  - remedy
+  - classification
+  - routing
+  - audit
+  - kafka-simulator
+  - customer-branding
+capabilities:
+  - capability: crud
+    whyUsed: Ticket and workflow state documents with agency metadata.
+    businessValue: Single operational record per ticket.
+    verified: false
+  - capability: vector-search
+    whyUsed: Similarity-based ticket classification.
+    businessValue: Consistent, explainable routing suggestions.
+    verified: false
+  - capability: voyage-ai
+    whyUsed: Embeddings for ticket descriptions.
+    businessValue: Captures meaning beyond keywords.
+    verified: false
+  - capability: aggregation
+    whyUsed: Operational monitoring dashboards.
+    businessValue: Real-time visibility into backlog and SLAs.
+    verified: false
+  - capability: kafka
+    whyUsed: Simulated Kafka inputs representing ticket feeds.
+    businessValue: Shows event-driven ingestion. Simulated only.
+    verified: false
+architecture:
+  overview: A simulator publishes Remedy-style tickets to simulated Kafka inputs. The workflow service stores tickets in
+    MongoDB, generates embeddings with Voyage AI and queries Vector Search for nearest historical tickets. A routing
+    policy decides between automatic routing and human review. Processing, notification and closure events are appended
+    to an audit trail.
+  dataFlow:
+    - Ticket simulator emits tickets with agency origin and metadata.
+    - Tickets are persisted and embedded.
+    - Vector Search returns similar classified tickets; a confidence threshold selects auto-route or human-in-the-loop.
+    - Processing, notifications and closure update ticket state.
+    - Every transition is recorded in the audit trail.
+  diagrams:
+    - id: iwa-flow
+      title: Ticket lifecycle and routing
+      description: Illustrative lifecycle. Thresholds and states to be confirmed from the repository.
+      mermaid: |-
+        flowchart TD
+          R[Simulated Remedy tickets] --> K[(Simulated Kafka input)]
+          K --> W[Workflow Service]
+          W --> DB[(MongoDB Atlas\ntickets)]
+          W --> E[Voyage AI embeddings]
+          E --> VS[Vector Search\nsimilar tickets]
+          VS --> D{Confidence\nthreshold}
+          D -- high --> AR[Automatic routing]
+          D -- low --> H[Human-in-the-loop review]
+          AR --> P[Processing]
+          H --> P
+          P --> N[Notifications]
+          N --> C[Closure]
+          W -. every transition .-> A[(Audit trail)]
+      provenance: catalog
+      illustrative: true
+screenshots: []
+repository: null
+defaultBranch: main
+readmePath: README.md
+prerequisites:
+  - name: Git
+  - name: Node.js
+    check: Version to be confirmed from repository
+  - name: MongoDB Atlas project
+    check: Atlas Connected Mode only
+localSetup: []
+atlasSetup: []
+configuration: []
+demoModes:
+  - local-demo
+  - atlas-connected
+themeMode: customer
+customerTheme:
+  name: Example Insurance Co. (fictional)
+  primaryColor: "#1A3D7C"
+  accentColor: "#F2A900"
+  notes: Customer-branded demo metadata. Affects demo previews and documentation metadata only; the Hub shell remains
+    LeafyGreen.
+maintainer:
+  name: Solutions Architecture Team
+  team: MongoDB Solutions Architecture
+maturity: prototype
+difficulty: intermediate
+documentationStatus: missing
+verificationTimestamp: null
+releaseVersion: null

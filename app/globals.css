@@ -1,0 +1,108 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/* LeafyGreen palette tokens (from @leafygreen-ui/palette) mapped to semantic hub tokens. */
+:root {
+  --lg-green-dark3: #023430;
+  --lg-green-dark2: #00684a;
+  --lg-green-dark1: #00a35c;
+  --lg-green-base: #00ed64;
+  --lg-green-light1: #71f6ba;
+  --lg-green-light2: #c0fae6;
+  --lg-green-light3: #e3fcf7;
+  --lg-gray-dark4: #112733;
+  --lg-gray-dark3: #1c2d38;
+  --lg-gray-dark2: #3d4f58;
+  --lg-gray-dark1: #5c6c75;
+  --lg-gray-base: #889397;
+  --lg-gray-light1: #c1c7c6;
+  --lg-gray-light2: #e8edeb;
+  --lg-gray-light3: #f9fbfa;
+
+  --background: #ffffff;
+  --surface: var(--lg-gray-light3);
+  --foreground: #001e2b;
+  --muted-foreground: var(--lg-gray-dark1);
+  --border: var(--lg-gray-light2);
+  --accent: var(--lg-green-dark2);
+  --accent-strong: var(--lg-green-base);
+  --hero: #001e2b;
+  --hero-elevated: var(--lg-green-dark3);
+  --hero-foreground: #ffffff;
+}
+
+.dark {
+  --background: #001e2b;
+  --surface: var(--lg-gray-dark4);
+  --foreground: #e8edeb;
+  --muted-foreground: var(--lg-gray-light1);
+  --border: var(--lg-gray-dark2);
+  --accent: var(--lg-green-light1);
+  --hero: #00141d;
+  --hero-elevated: var(--lg-green-dark3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-hero: var(--hero);
+  --color-hero-elevated: var(--hero-elevated);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-forest: var(--lg-green-dark3);
+  --color-leaf: var(--lg-green-base);
+  --color-leaf-dark: var(--lg-green-dark2);
+  --color-mint: var(--lg-green-light2);
+  --font-sans: var(--font-hub-sans), 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-hub-mono), 'Source Code Pro', Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+  :focus-visible {
+    outline: 2px solid var(--lg-green-dark1);
+    outline-offset: 2px;
+  }
+}
+
+/* Sanitized repository README rendering. */
+.readme-prose {
+  line-height: 1.7;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.readme-prose h1 { font-size: 1.75rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
+.readme-prose h2 { font-size: 1.375rem; font-weight: 600; margin: 1.5rem 0 0.75rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+.readme-prose h3 { font-size: 1.125rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+.readme-prose p, .readme-prose ul, .readme-prose ol, .readme-prose table, .readme-prose pre, .readme-prose blockquote { margin: 0.75rem 0; }
+.readme-prose ul { list-style: disc; padding-left: 1.5rem; }
+.readme-prose ol { list-style: decimal; padding-left: 1.5rem; }
+.readme-prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.readme-prose code { font-family: var(--font-mono); font-size: 0.875em; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.1em 0.35em; }
+.readme-prose pre { background: var(--lg-gray-dark4); color: #e8edeb; border-radius: 8px; padding: 1rem; overflow-x: auto; }
+.readme-prose pre code { background: transparent; border: 0; padding: 0; color: inherit; }
+.readme-prose table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+.readme-prose th, .readme-prose td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
+.readme-prose img { max-width: 100%; height: auto; border-radius: 6px; }
+.readme-prose blockquote { border-left: 3px solid var(--lg-green-dark1); padding-left: 1rem; color: var(--muted-foreground); }
+
+.mermaid-host svg { max-width: 100%; height: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,569 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "slug": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "tagline": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200
+    },
+    "businessProblem": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "solution": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "industry": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "category": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "useCases": {
+      "default": [],
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 80
+      }
+    },
+    "tags": {
+      "default": [],
+      "maxItems": 30,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 40
+      }
+    },
+    "capabilities": {
+      "default": [],
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "capability": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "crud",
+              "aggregation",
+              "atlas-search",
+              "vector-search",
+              "voyage-ai",
+              "change-streams",
+              "stream-processing",
+              "kafka",
+              "online-archive",
+              "sharding",
+              "atlas-infinite"
+            ]
+          },
+          "whyUsed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "implementationLocation": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "businessValue": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "verified": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "capability",
+          "whyUsed"
+        ]
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "overview": {
+          "default": "",
+          "type": "string",
+          "maxLength": 6000
+        },
+        "dataFlow": {
+          "default": [],
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 600
+          }
+        },
+        "diagrams": {
+          "default": [],
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "description": {
+                "default": "",
+                "type": "string",
+                "maxLength": 4000
+              },
+              "mermaid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "provenance": {
+                "default": "catalog",
+                "type": "string",
+                "enum": [
+                  "repository",
+                  "catalog",
+                  "template"
+                ]
+              },
+              "illustrative": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "mermaid"
+            ]
+          }
+        }
+      }
+    },
+    "screenshots": {
+      "default": [],
+      "maxItems": 40,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "string",
+                "pattern": "^\\/api\\/assets\\/[a-zA-Z0-9_-]+$"
+              }
+            ]
+          },
+          "caption": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "alt": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "order": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "provenance": {
+            "default": "catalog",
+            "type": "string",
+            "enum": [
+              "repository",
+              "catalog",
+              "template"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "caption",
+          "alt"
+        ]
+      }
+    },
+    "repository": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "defaultBranch": {
+      "default": "main",
+      "type": "string",
+      "maxLength": 120
+    },
+    "readmePath": {
+      "default": "README.md",
+      "type": "string",
+      "maxLength": 300
+    },
+    "prerequisites": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "check": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "localSetup": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "command": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "language": {
+            "default": "bash",
+            "type": "string",
+            "enum": [
+              "bash",
+              "shell",
+              "yaml",
+              "json",
+              "javascript",
+              "typescript",
+              "python",
+              "none"
+            ]
+          },
+          "provenance": {
+            "default": "template",
+            "type": "string",
+            "enum": [
+              "repository",
+              "catalog",
+              "template"
+            ]
+          },
+          "sourcePath": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    "atlasSetup": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "command": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "language": {
+            "default": "bash",
+            "type": "string",
+            "enum": [
+              "bash",
+              "shell",
+              "yaml",
+              "json",
+              "javascript",
+              "typescript",
+              "python",
+              "none"
+            ]
+          },
+          "provenance": {
+            "default": "template",
+            "type": "string",
+            "enum": [
+              "repository",
+              "catalog",
+              "template"
+            ]
+          },
+          "sourcePath": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    "configuration": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "required": {
+            "default": false,
+            "type": "boolean"
+          },
+          "secret": {
+            "default": false,
+            "type": "boolean"
+          },
+          "example": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "modes": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "local-demo",
+                "atlas-connected"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      }
+    },
+    "demoModes": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "local-demo",
+          "atlas-connected",
+          "hybrid",
+          "interactive-educational"
+        ]
+      }
+    },
+    "themeMode": {
+      "default": "mongodb",
+      "type": "string",
+      "enum": [
+        "mongodb",
+        "customer",
+        "custom"
+      ]
+    },
+    "customerTheme": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "primaryColor": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "accentColor": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "logoAssetId": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "maintainer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+        },
+        "team": {
+          "type": "string",
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "maturity": {
+      "type": "string",
+      "enum": [
+        "concept",
+        "prototype",
+        "beta",
+        "stable",
+        "deprecated"
+      ]
+    },
+    "difficulty": {
+      "default": "intermediate",
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    },
+    "documentationStatus": {
+      "type": "string",
+      "enum": [
+        "missing",
+        "template",
+        "partial",
+        "verified"
+      ]
+    },
+    "verificationTimestamp": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "releaseVersion": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 40
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "summary",
+    "businessProblem",
+    "industry",
+    "architecture",
+    "repository",
+    "demoModes",
+    "maintainer",
+    "maturity",
+    "documentationStatus",
+    "verificationTimestamp",
+    "releaseVersion"
+  ]
+}

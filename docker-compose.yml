@@ -1,0 +1,17 @@
+# Local development MongoDB for the Demo Hub catalog. Not for production use.
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: demo-hub-mongodb
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - demo-hub-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  demo-hub-mongo-data:

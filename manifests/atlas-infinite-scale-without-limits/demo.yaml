@@ -1,0 +1,113 @@
+# demo.yaml — example manifest for Atlas Infinite: Scale Without Limits
+# Place this file at the root of the demo repository. Status DRAFT until verified.
+# Validate with: pnpm manifests:validate
+id: atlas-infinite-scale-without-limits
+slug: atlas-infinite-scale-without-limits
+title: "Atlas Infinite: Scale Without Limits"
+tagline: Educational comparison of a sharded Atlas Core architecture and Atlas Infinite.
+summary: "An interactive educational experience comparing a conventional sharded Atlas Core architecture with Atlas
+  Infinite: architecture evolution, data-growth and application-load sliders, compute/storage separation, operational
+  implications, a guided migration simulation and a webinar presentation mode."
+businessProblem: As data and load grow, teams must plan shard topology, capacity and operations in advance. Architects
+  need a clear, honest way to explain alternative approaches to customers without overstating product capabilities.
+solution: An educational explorer that visualises both architectures side by side, clearly separates illustrative
+  assumptions from measured results, and keeps product facts in versioned, admin-editable metadata with verification
+  status.
+industry: Cross-industry
+category: Scalability / Modernization
+useCases:
+  - Architecture education
+  - Modernisation
+  - Webinars
+tags:
+  - scalability
+  - sharding
+  - compute-storage-separation
+  - education
+  - webinar
+capabilities:
+  - capability: sharding
+    whyUsed: Illustrates a conventional sharded Atlas Core topology.
+    implementationLocation: Hub interactive explorer (educational)
+    businessValue: Explains shard planning trade-offs.
+    verified: true
+  - capability: atlas-infinite
+    whyUsed: Illustrates a compute/storage separated architecture.
+    implementationLocation: Hub interactive explorer (educational)
+    businessValue: Frames modernisation conversations.
+    verified: true
+  - capability: atlas
+    whyUsed: Context for both architectures.
+    implementationLocation: Hub interactive explorer (educational)
+    businessValue: Managed operations.
+    verified: true
+architecture:
+  overview: "Atlas Core (illustrative): three shards with three nodes each — nine nodes — where each node couples compute
+    and storage. Atlas Infinite (educational scenario): exactly two compute nodes over a separated, shared storage
+    layer. Both are illustrative configurations, not universal requirements."
+  dataFlow:
+    - Application traffic is routed through query routers to shards (Atlas Core).
+    - In the separated model, compute nodes serve queries against a shared storage layer.
+    - Scaling compute and storage independently changes operational planning.
+  diagrams:
+    - id: ai-core
+      title: Atlas Core — illustrative sharded configuration (3 shards × 3 nodes = 9 nodes)
+      description: Illustrative configuration only; real topologies vary by workload.
+      mermaid: |-
+        flowchart TB
+          APP[Application] --> R[Query routers]
+          subgraph S1[Shard 1]
+            A1[Node 1]:::n
+            A2[Node 2]:::n
+            A3[Node 3]:::n
+          end
+          subgraph S2[Shard 2]
+            B1[Node 1]:::n
+            B2[Node 2]:::n
+            B3[Node 3]:::n
+          end
+          subgraph S3[Shard 3]
+            C1[Node 1]:::n
+            C2[Node 2]:::n
+            C3[Node 3]:::n
+          end
+          R --> S1
+          R --> S2
+          R --> S3
+          classDef n fill:#E3FCF7,stroke:#00684A
+      provenance: catalog
+      illustrative: true
+    - id: ai-infinite
+      title: Atlas Infinite — educational scenario (2 compute nodes)
+      description: Educational scenario with exactly two compute nodes over a separated storage layer.
+      mermaid: |-
+        flowchart TB
+          APP[Application] --> CMP
+          subgraph CMP[Compute layer]
+            X1[Compute node 1]:::c
+            X2[Compute node 2]:::c
+          end
+          CMP --> ST[(Separated shared storage layer)]
+          classDef c fill:#E3FCF7,stroke:#00684A
+      provenance: catalog
+      illustrative: true
+screenshots: []
+repository: null
+defaultBranch: main
+readmePath: README.md
+prerequisites:
+  - name: Modern web browser
+localSetup: []
+atlasSetup: []
+configuration: []
+demoModes:
+  - interactive-educational
+themeMode: mongodb
+maintainer:
+  name: Solutions Architecture Team
+  team: MongoDB Solutions Architecture
+maturity: beta
+difficulty: beginner
+documentationStatus: partial
+verificationTimestamp: null
+releaseVersion: null

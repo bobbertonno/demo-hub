@@ -1,0 +1,12 @@
+pmOnFail: ignore
+
+minimumReleaseAgeExclude:
+  - '@next/*'
+  - next
+
+allowBuilds:
+  esbuild: true
+
+overrides:
+  '@types/react': ^19
+  '@types/react-dom': ^19
