@@ -26,6 +26,10 @@ const envSchema = z.object({
   INITIAL_ADMIN_EMAILS: z.string().default(''),
   DEV_AUTH_MODE: booleanFlag,
   DEV_AUTH_ALLOW_PREVIEW: booleanFlag,
+  DEMO_ACCESS: z
+    .string()
+    .optional()
+    .transform((v) => v !== 'false'),
   GITHUB_APP_ID: optionalString,
   GITHUB_PRIVATE_KEY: optionalString,
   GITHUB_APP_INSTALLATION_ID: optionalString,
@@ -61,7 +65,17 @@ export function isProductionLike(env = getEnv()): boolean {
   return env.NODE_ENV === 'production' || env.VERCEL_ENV === 'production' || env.VERCEL_ENV === 'preview'
 }
 
+/**
+ * Demonstration access: while corporate SSO is not configured, the Hub opens with
+ * clearly labelled demo accounts so it can be shown without an identity provider.
+ * It switches off automatically once OIDC is configured, or explicitly with DEMO_ACCESS=false.
+ */
+export function isDemoAccessEnabled(env = getEnv()): boolean {
+  return env.DEMO_ACCESS && !isSsoConfigured(env)
+}
+
 export function isDevAuthEnabled(env = getEnv()): boolean {
+  if (isDemoAccessEnabled(env)) return true
   if (!env.DEV_AUTH_MODE) return false
   if (env.VERCEL_ENV === 'production') return false
   if (env.VERCEL_ENV === 'preview') return env.DEV_AUTH_ALLOW_PREVIEW && env.NODE_ENV !== 'production'
@@ -135,7 +149,23 @@ export function getDiagnostics(): DiagnosticItem[] {
       key: 'DEV_AUTH_MODE',
       label: 'Development-only accounts',
       status: isDevAuthEnabled(env) ? 'configured' : 'disabled',
-      detail: isDevAuthEnabled(env) ? 'ENABLED — local development only' : env.DEV_AUTH_MODE ? 'Requested but blocked in this environment' : 'Disabled',
+      detail: isDemoAccessEnabled(env)
+        ? 'ENABLED — demonstration access (SSO not configured)'
+        : isDevAuthEnabled(env)
+          ? 'ENABLED — local development only'
+          : env.DEV_AUTH_MODE
+            ? 'Requested but blocked in this environment'
+            : 'Disabled',
+    },
+    {
+      key: 'DEMO_ACCESS',
+      label: 'Demonstration access without SSO',
+      status: isDemoAccessEnabled(env) ? 'configured' : 'disabled',
+      detail: isDemoAccessEnabled(env)
+        ? 'ON — anyone with the URL can use the demo accounts. Configure OIDC or set DEMO_ACCESS=false before real use.'
+        : isSsoConfigured(env)
+          ? 'Off — corporate SSO is configured'
+          : 'Off — DEMO_ACCESS=false',
     },
   ]
 }

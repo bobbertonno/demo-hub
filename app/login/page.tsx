@@ -5,7 +5,7 @@ import { Container } from '@/components/shared/page'
 import { HubLogo } from '@/components/layout/hub-logo'
 import { DEV_ACCOUNTS } from '@/lib/auth/roles'
 import { getCurrentUser } from '@/lib/auth/session'
-import { getEnv, isDevAuthEnabled, isSsoConfigured } from '@/lib/config/env'
+import { getEnv, isDemoAccessEnabled, isDevAuthEnabled, isSsoConfigured } from '@/lib/config/env'
 import { devSignInAction, ssoSignInAction } from './actions'
 
 export const metadata: Metadata = { title: 'Sign in' }
@@ -24,6 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   if (await getCurrentUser()) redirect(callbackUrl)
   const sso = isSsoConfigured()
   const dev = isDevAuthEnabled()
+  const demo = isDemoAccessEnabled()
   const providerName = getEnv().OIDC_PROVIDER_NAME
 
   return (
@@ -54,18 +55,28 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               </button>
               <p className="mt-3 text-xs text-muted-foreground">ID token signature, issuer, audience, expiry and verified corporate email are checked server-side.</p>
             </form>
+          ) : demo ? (
+            <div className="mt-6">
+              <Callout variant="note" title="Demonstration mode">
+                Corporate SSO is not configured yet, so the Hub is running with demo accounts. Pick a role below. Demo mode turns off automatically once OIDC is configured.
+              </Callout>
+            </div>
           ) : (
             <div className="mt-6">
               <Callout variant="important" title="Corporate SSO is not configured">
-                Set OIDC_ISSUER, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET and AUTH_SECRET. Protected areas stay locked until SSO is configured — there is no public bypass.
+                Set OIDC_ISSUER, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET and AUTH_SECRET. Protected areas stay locked until SSO is configured.
               </Callout>
             </div>
           )}
 
           {dev && (
             <div className="mt-8 rounded-xl border-2 border-dashed border-yellow-400 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-yellow-700 dark:text-yellow-300">Development only — DEV_AUTH_MODE</p>
-              <p className="mt-1 text-xs text-muted-foreground">These accounts exist only in local development and are disabled in production and Vercel previews by default.</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-yellow-700 dark:text-yellow-300">{demo ? 'Demo accounts — no SSO' : 'Development only — DEV_AUTH_MODE'}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {demo
+                  ? 'For demonstrations only. Anyone with this URL can use these accounts, so do not store confidential data until SSO is configured.'
+                  : 'These accounts exist only in local development and are disabled in production and Vercel previews by default.'}
+              </p>
               <ul className="mt-4 flex flex-col gap-2">
                 {DEV_ACCOUNTS.map((a) => (
                   <li key={a.email}>
