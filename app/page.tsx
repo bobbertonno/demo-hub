@@ -10,7 +10,7 @@ export default async function HomePage() {
   const { data: demos, degraded } = await getVisibleDemos()
   const featured = demos.filter((d) => d.featured)
   const showcase = featured.length ? featured : demos
-  const unavailableReason = showcase.length ? undefined : degraded
+  const unavailableReason = degraded
 
   return (
     <div className="flex flex-col lg:flex-row">

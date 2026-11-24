@@ -61,8 +61,8 @@ export async function listDemos(opts: { includeArchived?: boolean } = {}): Promi
     return { data: docs.map((d) => strip(d) as DemoRecord), mode: 'database' }
   } catch (err) {
     return {
-      data: [],
-      mode: 'database',
+      data: seedDemos.filter((d) => opts.includeArchived || d.status !== 'archived'),
+      mode: 'seed',
       degraded: err instanceof Error ? sanitizeDbError(err.message) : 'Database unavailable',
     }
   }
@@ -70,9 +70,13 @@ export async function listDemos(opts: { includeArchived?: boolean } = {}): Promi
 
 export async function getDemoBySlug(slug: string): Promise<DemoRecord | null> {
   if (getCatalogMode() === 'seed') return seedDemos.find((d) => d.slug === slug) ?? null
-  const col = await getCollection<DemoDoc>(COLLECTIONS.demos)
-  const doc = await col.findOne({ slug })
-  return doc ? (strip(doc) as DemoRecord) : null
+  try {
+    const col = await getCollection<DemoDoc>(COLLECTIONS.demos)
+    const doc = await col.findOne({ slug })
+    return doc ? (strip(doc) as DemoRecord) : null
+  } catch {
+    return seedDemos.find((d) => d.slug === slug) ?? null
+  }
 }
 
 export async function createDemo(input: unknown): Promise<DemoRecord> {
