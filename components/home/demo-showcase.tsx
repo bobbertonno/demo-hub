@@ -68,6 +68,14 @@ export function DemoShowcase({ demos, unavailableReason }: { demos: DemoRecord[]
         </div>
       </div>
 
+      {unavailableReason && demos.length > 0 && (
+        <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+          <span className="font-semibold">Offline catalog.</span> MongoDB is unreachable, so the built-in demo catalog is shown
+          (read-only). Allow this machine&apos;s IP in Atlas Network Access or use the local Docker database to restore
+          live data. <span className="text-amber-800/80 dark:text-amber-300/80">({unavailableReason})</span>
+        </p>
+      )}
+
       {visible.length ? (
         <ul className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
           {visible.map((d) => (
