@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { AccessState } from '@/components/admin/access-state'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { AuditTable } from '@/components/admin/audit-table'
 import { InitializeCatalog } from '@/components/admin/initialize-catalog'
@@ -25,7 +24,6 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 
 export default async function AdminDashboardPage() {
   const access = await checkPageRole('contributor')
-  if (!access.ok) return <AccessState reason={access.reason} path="/admin" />
   const { user } = access
   const isAdmin = user.role === 'admin'
   const mode = getCatalogMode()

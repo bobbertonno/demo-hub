@@ -1,5 +1,7 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { getEnv } from '@/lib/config/env'
 import { COLLECTIONS, getCollection } from '@/lib/db/mongo'
 import { HttpError } from '@/lib/auth/session'
@@ -13,8 +15,8 @@ export type DemoAsset = {
   kind: 'screenshot' | 'logo'
   contentType: string
   size: number
-  blobPathname: string
-  blobUrl: string
+  /** Path relative to the asset storage directory. */
+  storagePath: string
   uploadedBy: string
   uploadedAt: string
 }
@@ -27,21 +29,34 @@ export function sniffImageType(bytes: Uint8Array): string | null {
   return null
 }
 
+function storageRoot() {
+  return path.resolve(getEnv().ASSET_STORAGE_DIR)
+}
+
+/** Resolves a stored path and refuses anything that escapes the storage directory. */
+function resolveStoragePath(relative: string) {
+  const root = storageRoot()
+  const full = path.resolve(root, relative)
+  if (full !== root && !full.startsWith(root + path.sep)) throw new HttpError(400, 'Invalid asset path')
+  return full
+}
+
 export function isObjectStorageConfigured() {
-  return Boolean(getEnv().BLOB_READ_WRITE_TOKEN)
+  return true
 }
 
 export async function storeAsset(file: File, demoSlug: string, kind: DemoAsset['kind'], actor: string): Promise<DemoAsset> {
-  if (!isObjectStorageConfigured()) throw new HttpError(503, 'Object storage is not configured (BLOB_READ_WRITE_TOKEN).')
   if (file.size > MAX_ASSET_BYTES) throw new HttpError(413, 'Image exceeds 5 MB')
+  if (!/^[a-z0-9][a-z0-9-]{0,99}$/.test(demoSlug)) throw new HttpError(400, 'Invalid demo slug')
   const bytes = new Uint8Array(await file.arrayBuffer())
   const sniffed = sniffImageType(bytes)
   if (!sniffed || !(ALLOWED_IMAGE_TYPES as readonly string[]).includes(sniffed)) throw new HttpError(415, 'Only PNG, JPEG or WebP images are accepted')
-  const { put } = await import('@vercel/blob')
   const id = randomUUID().replace(/-/g, '')
-  const ext = sniffed.split('/')[1]
-  const blob = await put(`demo-hub/${demoSlug}/${id}.${ext}`, Buffer.from(bytes), { access: 'private', contentType: sniffed, addRandomSuffix: false })
-  const asset: DemoAsset = { id, demoSlug, kind, contentType: sniffed, size: bytes.length, blobPathname: blob.pathname, blobUrl: blob.url, uploadedBy: actor, uploadedAt: new Date().toISOString() }
+  const storagePath = `${demoSlug}/${id}.${sniffed.split('/')[1]}`
+  const full = resolveStoragePath(storagePath)
+  await mkdir(path.dirname(full), { recursive: true })
+  await writeFile(full, bytes)
+  const asset: DemoAsset = { id, demoSlug, kind, contentType: sniffed, size: bytes.length, storagePath, uploadedBy: actor, uploadedAt: new Date().toISOString() }
   const col = await getCollection<DemoAsset>(COLLECTIONS.demoAssets)
   await col.insertOne({ ...asset })
   return asset
@@ -53,16 +68,19 @@ export async function getAsset(id: string): Promise<DemoAsset | null> {
   return col.findOne({ id }, { projection: { _id: 0 } })
 }
 
-export async function readAssetStream(asset: DemoAsset) {
-  const { get } = await import('@vercel/blob')
-  return get(asset.blobPathname, { access: 'private' })
+export async function readAssetBytes(asset: DemoAsset): Promise<Buffer | null> {
+  if (!asset.storagePath) return null
+  try {
+    return await readFile(resolveStoragePath(asset.storagePath))
+  } catch {
+    return null
+  }
 }
 
 export async function deleteAsset(id: string): Promise<DemoAsset | null> {
   const asset = await getAsset(id)
   if (!asset) return null
-  const { del } = await import('@vercel/blob')
-  await del(asset.blobUrl)
+  if (asset.storagePath) await rm(resolveStoragePath(asset.storagePath), { force: true })
   const col = await getCollection<DemoAsset>(COLLECTIONS.demoAssets)
   await col.deleteOne({ id })
   return asset

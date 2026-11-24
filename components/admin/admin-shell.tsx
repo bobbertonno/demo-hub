@@ -39,12 +39,7 @@ export function AdminShell({
               <h1 className="mt-2 text-balance text-3xl font-semibold">{title}</h1>
               {description ? <p className="mt-2 max-w-2xl text-pretty text-white/75">{description}</p> : null}
             </div>
-            <div className="flex flex-col items-start gap-1 text-sm text-white/75 md:items-end">
-              <span>
-                Signed in as <span className="font-semibold text-white">{user.email}</span>
-              </span>
-              <span className="rounded-full border border-white/20 px-2.5 py-0.5 text-xs uppercase tracking-wide">{user.role}</span>
-            </div>
+            <span className="w-fit rounded-full border border-white/20 px-2.5 py-0.5 text-xs uppercase tracking-wide text-white/75">Local mode</span>
           </div>
           <nav aria-label="Administration" className="mt-6 flex flex-wrap gap-1">
             {nav.map((n) => (
@@ -63,7 +58,7 @@ export function AdminShell({
       {mode === 'seed' ? (
         <div role="status" className="border-b border-border bg-surface">
           <Container className="py-3 text-sm text-foreground">
-            <strong>Read-only seed catalog.</strong> MONGODB_URI is not configured, so create, edit, publish, upload and sync actions will be rejected by the server. Connect MongoDB Atlas or start the local Docker container to enable writes.
+            <strong>Read-only seed catalog.</strong> MONGODB_URI is not configured, so create, edit, publish, upload and sync actions will be rejected by the server. Set MONGODB_URI or start the local Docker stack to enable writes.
           </Container>
         </div>
       ) : null}

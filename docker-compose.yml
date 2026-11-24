@@ -94,17 +94,19 @@ services:
     environment:
       MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-root}:${MONGO_ROOT_PASSWORD:-demo-hub-root}@mongod:27017/?replicaSet=rs0&authSource=admin&directConnection=true
       MONGODB_DB: ${MONGODB_DB:-demo_hub}
-      DEMO_ACCESS: ${DEMO_ACCESS:-true}
-      AUTH_SECRET: ${AUTH_SECRET:-change-me-to-a-long-random-string-0000000000}
+      ASSET_STORAGE_DIR: /data/assets
       DEMO_HUB_AUTO_INIT: "true"
       IMPORT_WORKER: embedded
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       EMBEDDINGS_PROVIDER: ${EMBEDDINGS_PROVIDER:-none}
       VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+    volumes:
+      - app-assets:/data/assets
     ports:
       - "127.0.0.1:3000:3000"
 
 volumes:
+  app-assets:
   auth-files:
   mongo-data:
   mongot-data:

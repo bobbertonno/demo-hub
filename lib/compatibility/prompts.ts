@@ -5,7 +5,7 @@ export const PROMPT_TEMPLATE_VERSION = '1.0.0'
 export type PromptPlatform = 'v0' | 'claude-code' | 'codex'
 
 export const PROMPT_PLATFORMS: { id: PromptPlatform; name: string; description: string; openUrl: string; openLabel: string }[] = [
-  { id: 'v0', name: 'v0 by Vercel', description: 'Paste into a v0 chat connected to the demo repository. v0 will add the files and open a pull request.', openUrl: 'https://v0.app', openLabel: 'Open v0' },
+  { id: 'v0', name: 'v0', description: 'Paste into a v0 chat connected to the demo repository. v0 will add the files and open a pull request.', openUrl: 'https://v0.app', openLabel: 'Open v0' },
   { id: 'claude-code', name: 'Claude Code', description: 'Run inside the repository with Claude Code. It inspects the code before writing any documentation.', openUrl: 'https://claude.com/product/claude-code', openLabel: 'Open Claude Code' },
   { id: 'codex', name: 'OpenAI Codex', description: 'Use in Codex with the repository checked out. Works from the CLI or the Codex cloud agent.', openUrl: 'https://chatgpt.com/codex', openLabel: 'Open Codex' },
 ]

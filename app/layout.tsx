@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Inter, Source_Code_Pro } from 'next/font/google'
 import { Providers } from '@/components/providers'
@@ -14,7 +13,6 @@ export const metadata: Metadata = {
   title: { default: 'MongoDB Demo Hub – Solutions Architect Edition', template: '%s · MongoDB Demo Hub' },
   description: 'Internal catalog of MongoDB Solutions Architect demos: documentation, architectures, capability mapping and verified setup guides.',
   robots: { index: false, follow: false },
-  icons: { icon: '/icon.svg' },
 }
 
 export const viewport: Viewport = {
@@ -42,7 +40,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SiteFooter />
           </div>
         </Providers>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

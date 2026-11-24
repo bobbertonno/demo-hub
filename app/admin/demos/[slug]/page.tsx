@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { AccessState } from '@/components/admin/access-state'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { AuditTable } from '@/components/admin/audit-table'
 import { DemoEditor } from '@/components/admin/demo-editor'
@@ -16,7 +15,6 @@ export const dynamic = 'force-dynamic'
 export default async function EditDemoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const access = await checkPageRole('contributor')
-  if (!access.ok) return <AccessState reason={access.reason} path={`/admin/demos/${slug}`} />
   const demo = await getDemoBySlug(slug)
   if (!demo) notFound()
 

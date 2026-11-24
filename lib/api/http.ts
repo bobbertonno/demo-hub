@@ -9,7 +9,7 @@ const buckets = new Map<string, Bucket>()
 
 /**
  * Fixed-window rate limiter. Per-instance memory: adequate as a first line of
- * defence on serverless; pair with Vercel Firewall rules for global limits.
+ * defence for a single process; use a reverse proxy for global limits.
  */
 export function rateLimit(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now()
