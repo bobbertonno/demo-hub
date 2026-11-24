@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useHubTheme } from '@/components/providers'
+import { ImportRepositoryDialog } from '@/components/import/import-repository-dialog'
 import { HubLogo } from './hub-logo'
 
 type NavUser = { name: string; email: string; role: 'viewer' | 'contributor' | 'admin'; authMethod: 'oidc' | 'dev' } | null
@@ -16,6 +17,7 @@ const NAV = [
   { href: '/architectures', label: 'Architectures' },
   { href: '/capabilities', label: 'Use Cases' },
   { href: '/getting-started', label: 'Resources' },
+  { href: '/compatibility', label: 'Prepare a Demo' },
   { href: '/about', label: 'About' },
 ]
 
@@ -65,6 +67,7 @@ export function HeaderNav({ user, signOutAction }: { user: NavUser; signOutActio
           </ul>
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          {user && user.role !== 'viewer' && <ImportRepositoryDialog />}
           <button
             type="button"
             onClick={toggle}
