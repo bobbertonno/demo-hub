@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { AccessState } from '@/components/admin/access-state'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { DiagnosticsList } from '@/components/admin/diagnostics-list'
 import { SyncButton } from '@/components/admin/sync-button'
@@ -17,7 +16,6 @@ const GITHUB_KEYS = ['github', 'githubApp', 'githubToken', 'githubWebhook', 'cro
 
 export default async function IntegrationsPage() {
   const access = await checkPageRole('admin')
-  if (!access.ok) return <AccessState reason={access.reason} path="/admin/integrations" />
   const mode = getCatalogMode()
   const authMode = githubAuthMode()
   const diagnostics = getDiagnostics()

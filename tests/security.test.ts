@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasRole, isAllowedCorporateIdentity } from '@/lib/auth/roles'
+import { hasRole } from '@/lib/auth/roles'
 import { assertSafePath, assertSafeRef, parseRepoUrl } from '@/lib/github/client'
 import { renderRepositoryMarkdown, resolveRepoUrl, sanitizeMarkdownHtml } from '@/lib/github/markdown'
 import { signGithubPayload, verifyGithubSignature } from '@/lib/github/webhook'
@@ -12,21 +12,6 @@ describe('roles', () => {
     expect(hasRole('contributor', 'contributor')).toBe(true)
     expect(hasRole('admin', 'contributor')).toBe(true)
     expect(hasRole(null, 'viewer')).toBe(false)
-  })
-})
-
-describe('corporate identity', () => {
-  const domains = ['mongodb.com']
-  it('requires a verified email', () => {
-    expect(isAllowedCorporateIdentity({ email: 'a@mongodb.com', email_verified: true }, domains)).toBe(true)
-    expect(isAllowedCorporateIdentity({ email: 'a@mongodb.com', email_verified: false }, domains)).toBe(false)
-    expect(isAllowedCorporateIdentity({ email: 'a@mongodb.com' }, domains)).toBe(false)
-    expect(isAllowedCorporateIdentity({ email: 'a@mongodb.com', email_verified: 'true' }, domains)).toBe(false)
-  })
-  it('rejects look-alike domains', () => {
-    expect(isAllowedCorporateIdentity({ email: 'a@evilmongodb.com', email_verified: true }, domains)).toBe(false)
-    expect(isAllowedCorporateIdentity({ email: 'a@mongodb.com.evil.io', email_verified: true }, domains)).toBe(false)
-    expect(isAllowedCorporateIdentity({ email: 'a@b@mongodb.com', email_verified: true }, domains)).toBe(false)
   })
 })
 

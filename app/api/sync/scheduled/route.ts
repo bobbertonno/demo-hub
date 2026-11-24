@@ -19,7 +19,7 @@ function authorized(req: Request): boolean {
   return expected.length === actual.length && timingSafeEqual(expected, actual)
 }
 
-/** Called by Vercel Cron with `Authorization: Bearer $CRON_SECRET`. */
+/** Called by a scheduler (e.g. cron) with `Authorization: Bearer $CRON_SECRET`. */
 export const GET = handle(async (req: Request) => {
   if (!authorized(req)) throw new HttpError(401, 'Unauthorized')
   const settings = await getSettings()

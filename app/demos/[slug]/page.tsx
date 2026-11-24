@@ -12,7 +12,9 @@ import { Container, KeyValue, Section, formatDate, formatDateTime } from '@/comp
 import { DocStatusBadge, MaturityBadge, StatusBadge, ThemeModeBadge } from '@/components/shared/status-badges'
 import { hasRole } from '@/lib/auth/roles'
 import { requireBrowseAccess } from '@/lib/auth/session'
-import { getDemoBySlug, getLatestSnapshot } from '@/lib/catalog/repository'
+import { getCatalogMode, getDemoBySlug, getLatestSnapshot } from '@/lib/catalog/repository'
+import { EnrichmentPanel } from '@/components/import/enrichment-panel'
+import type { CompatibilityReport } from '@/lib/compatibility/standard'
 import { RUNTIME_LABELS } from '@/lib/seed/capability-labels'
 
 type Params = { params: Promise<{ slug: string }> }
@@ -166,6 +168,13 @@ export default async function DemoDetailPage({ params }: Params) {
               <aside className="flex flex-col gap-4">
                 <h3 className="font-semibold">Repository</h3>
                 <RepositoryPanel slug={demo.slug} repository={demo.repository} defaultBranch={demo.defaultBranch} />
+                {demo.repository && (
+                  <EnrichmentPanel
+                    slug={demo.slug}
+                    compatibility={(demo as { hub?: { compatibility?: CompatibilityReport } }).hub?.compatibility ?? null}
+                    canSync={hasRole(user?.role, 'contributor') && getCatalogMode() === 'database'}
+                  />
+                )}
                 {demo.repositoryFiles.length > 0 && repoBlobBase && (
                   <ul className="flex flex-col gap-1 text-sm">
                     {demo.repositoryFiles.map((f) => <li key={f.path}><a href={`${repoBlobBase}/${f.path}`} target="_blank" rel="noreferrer" className="text-accent hover:underline">{f.label}</a></li>)}

@@ -4,6 +4,7 @@ export const COLLECTIONS = {
   demoAssets: 'demo_assets',
   documentationSnapshots: 'documentation_snapshots',
   githubSyncJobs: 'github_sync_jobs',
+  importJobs: 'import_jobs',
   auditLogs: 'audit_logs',
   userRoles: 'user_roles',
   catalogSettings: 'catalog_settings',

@@ -6,6 +6,7 @@ import { DemoInput, DemoRecord, type DemoStatus, type SyncState } from '@/lib/sc
 import { seedDemos } from '@/lib/seed/demos'
 import { seedCapabilities, type CapabilityDefinition } from '@/lib/seed/capabilities'
 import type { DocumentationSnapshot } from '@/lib/github/types'
+import { ENRICHABLE_FIELDS, type DemoHubMeta } from '@/lib/import/types'
 
 export type CatalogMode = 'database' | 'seed'
 
@@ -32,11 +33,18 @@ function assertWritable() {
   if (getCatalogMode() === 'seed') throw new ReadOnlyCatalogError()
 }
 
-type DemoDoc = DemoRecord & { _id?: unknown }
+type DemoDoc = DemoRecord & { _id?: unknown; hub?: DemoHubMeta }
 
 function strip<T extends { _id?: unknown }>(doc: T): Omit<T, '_id'> {
   const { _id, ...rest } = doc
   void _id
+  const hub = (rest as { hub?: Record<string, unknown> }).hub
+  if (hub) {
+    const { searchText, embedding, ...light } = hub
+    void searchText
+    void embedding
+    ;(rest as { hub?: Record<string, unknown> }).hub = light
+  }
   return rest
 }
 
@@ -100,8 +108,16 @@ export async function updateDemo(slug: string, input: unknown): Promise<{ before
     createdAt: before.createdAt,
     updatedAt: new Date().toISOString(),
   })
+  const hub = (existing as DemoDoc & { hub?: { imported?: boolean; overrides?: string[] } }).hub
+  if (hub?.imported) {
+    const overrides = new Set(hub.overrides ?? [])
+    for (const field of ENRICHABLE_FIELDS) {
+      if (JSON.stringify(before[field]) !== JSON.stringify(after[field])) overrides.add(field)
+    }
+    hub.overrides = [...overrides]
+  }
   try {
-    await col.replaceOne({ slug }, after)
+    await col.replaceOne({ slug }, hub ? { ...after, hub } : after)
   } catch (err) {
     if (isDuplicateKey(err)) throw new ConflictError('Another demo already uses this slug, id or repository.')
     throw err

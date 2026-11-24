@@ -75,7 +75,7 @@ export function GalleryManager({
           {uploading ? 'Uploading…' : 'Upload images'}
         </Button>
       </div>
-      {!canUpload ? <p className="text-sm text-muted-foreground">Uploads need an admin role, a saved demo, MongoDB and a configured object store (BLOB_READ_WRITE_TOKEN).</p> : null}
+      {!canUpload ? <p className="text-sm text-muted-foreground">Uploads need a saved demo and a MongoDB connection. Files are stored on local disk (ASSET_STORAGE_DIR).</p> : null}
       {error ? (
         <p role="alert" className="text-sm text-red-600">
           {error}

@@ -1,17 +1,112 @@
-# Local development MongoDB for the Demo Hub catalog. Not for production use.
+# Demo Hub with MongoDB Community + MongoDB Search (mongot).
+#   docker compose up -d              # MongoDB + mongot only (run the app with `pnpm dev`)
+#   docker compose --profile app up   # full stack including the Demo Hub container
+# Ports bind to 127.0.0.1. Change the passwords in .env before sharing a machine.
+name: demo-hub
+
+x-mongo-root: &mongo-root
+  MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-root}
+  MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-demo-hub-root}
+
 services:
-  mongodb:
-    image: mongo:8.0
-    container_name: demo-hub-mongodb
+  # Generates the replica set keyfile and the mongot password file once.
+  auth-init:
+    image: mongodb/mongodb-community-server:8.3.4-ubi9
+    user: root
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        [ -f /auth/keyfile ] || openssl rand -base64 756 > /auth/keyfile
+        printf '%s' "$${MONGOT_PASSWORD}" > /auth/mongot-password
+        chmod 400 /auth/keyfile /auth/mongot-password
+        chown mongod /auth/keyfile
+    environment:
+      MONGOT_PASSWORD: ${MONGOT_PASSWORD:-demo-hub-mongot}
+    volumes:
+      - auth-files:/auth
+
+  mongod:
+    image: mongodb/mongodb-community-server:8.3.4-ubi9
+    depends_on:
+      auth-init:
+        condition: service_completed_successfully
+    command:
+      - --replSet=rs0
+      - --bind_ip_all
+      - --keyFile=/auth/keyfile
+      - --setParameter=mongotHost=mongot:27028
+      - --setParameter=searchIndexManagementHostAndPort=mongot:27028
+      - --setParameter=skipAuthenticationToSearchIndexManagementServer=false
+      - --setParameter=useGrpcForSearch=true
+    environment: *mongo-root
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
-      - demo-hub-mongo-data:/data/db
+      - mongo-data:/data/db
+      - auth-files:/auth:ro
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--quiet", "-u", "${MONGO_ROOT_USERNAME:-root}", "-p", "${MONGO_ROOT_PASSWORD:-demo-hub-root}", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
+
+  # Initiates the replica set and creates the searchCoordinator user for mongot.
+  mongo-setup:
+    image: mongodb/mongodb-community-server:8.3.4-ubi9
+    depends_on:
+      mongod:
+        condition: service_healthy
+    environment:
+      MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-root}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-demo-hub-root}
+      MONGOT_PASSWORD: ${MONGOT_PASSWORD:-demo-hub-mongot}
+    volumes:
+      - ./docker/mongo-setup.js:/setup/mongo-setup.js:ro
+    entrypoint: ["/bin/sh", "-c", "mongosh --quiet 'mongodb://mongod:27017/admin?directConnection=true' -u \"$$MONGO_ROOT_USERNAME\" -p \"$$MONGO_ROOT_PASSWORD\" /setup/mongo-setup.js"]
+
+  mongot:
+    image: mongodb/mongodb-community-search:1.70.1
+    depends_on:
+      mongo-setup:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:27028:27028"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - mongot-data:/data/mongot
+      - ./docker/mongot.conf:/mongot-community/config.default.yml:ro
+      - auth-files:/auth:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      mongo-setup:
+        condition: service_completed_successfully
+    environment:
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-root}:${MONGO_ROOT_PASSWORD:-demo-hub-root}@mongod:27017/?replicaSet=rs0&authSource=admin&directConnection=true
+      MONGODB_DB: ${MONGODB_DB:-demo_hub}
+      ASSET_STORAGE_DIR: /data/assets
+      DEMO_HUB_AUTO_INIT: "true"
+      IMPORT_WORKER: embedded
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      EMBEDDINGS_PROVIDER: ${EMBEDDINGS_PROVIDER:-none}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+    volumes:
+      - app-assets:/data/assets
+    ports:
+      - "127.0.0.1:3000:3000"
 
 volumes:
-  demo-hub-mongo-data:
+  app-assets:
+  auth-files:
+  mongo-data:
+  mongot-data:

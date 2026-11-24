@@ -9,7 +9,7 @@ const securityHeaders = [
     key: 'Content-Security-Policy-Report-Only',
     value: [
       "default-src 'self'",
-      "img-src 'self' data: blob: https://raw.githubusercontent.com https://*.public.blob.vercel-storage.com",
+      "img-src 'self' data: blob: https://raw.githubusercontent.com",
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",

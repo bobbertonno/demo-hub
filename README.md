@@ -9,7 +9,6 @@ The Hub **does not run or deploy demos**. It links to each demo's own GitHub rep
 - Next.js App Router, TypeScript (strict), React 19
 - Official `@leafygreen-ui/*` components and `@leafygreen-ui/tokens`
 - MongoDB Node.js driver, with MongoDB Atlas as the production catalog database
-- Auth.js with a configurable OIDC corporate identity provider
 - Zod (manifest and API validation), Mermaid (diagrams), Vitest and Playwright
 
 ## Runtime modes
@@ -18,7 +17,7 @@ The Hub **does not run or deploy demos**. It links to each demo's own GitHub rep
 | --- | --- | --- |
 | **Read-only seed catalog** | `MONGODB_URI` unset | The four DRAFT seed demos are served from code. All writes return `503` with a setup message. A banner shows the mode. |
 | **Local MongoDB** | `docker compose up -d` and `MONGODB_URI=mongodb://localhost:27017` | Full CRUD, audit log, sync metadata |
-| **Atlas (production)** | Atlas connection string | Same as local. SSO is required. |
+| **Atlas** | Atlas connection string | Same as local MongoDB |
 
 ## Quick start
 
@@ -30,17 +29,17 @@ pnpm db:migrate && pnpm db:seed   # idempotent; never overwrites admin edits
 pnpm dev
 ```
 
-For local development without an identity provider, set `DEV_AUTH_MODE=true`. This enables clearly labelled development-only viewer, contributor and admin accounts. These accounts are always disabled when `NODE_ENV=production` and on Vercel production. Vercel preview deployments stay disabled unless `DEV_AUTH_ALLOW_PREVIEW=true` is set explicitly.
+To run the full stack (app, MongoDB and Community Search) in Docker:
 
-## Access control
+```bash
+docker compose --profile app up -d --build
+```
 
-- Production requires OIDC SSO. If `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` or `AUTH_SECRET` is missing, protected routes show a setup state and deny access. There is no bypass.
-- Sign-in checks the ID token's signature, issuer, audience and expiry (Auth.js / oauth4webapi). It also requires `email_verified === true`, and an exact match against `ALLOWED_EMAIL_DOMAINS`. Matching the domain alone is not enough.
-- Roles are stored in `user_roles`:
-  - **viewer** can browse.
-  - **contributor** can submit proposals.
-  - **admin** can create, edit, sync, publish, archive, delete and manage roles.
-- Each API handler checks roles server-side, and every mutation writes to `audit_logs`.
+## Access
+
+The Hub runs in **local mode** with no sign-in and no user accounts. Every visitor has full access, including admin features. It binds to `127.0.0.1` in Docker; run it only on a trusted machine or network. Mutations are still validated, rate limited and recorded in `audit_logs` under a local operator identity.
+
+Uploaded screenshots are stored on local disk under `ASSET_STORAGE_DIR` (default `./.data/assets`).
 
 ## GitHub integration
 
@@ -65,7 +64,7 @@ Setup steps have a `provenance` of `repository` (VERIFIED) or `template` (TEMPLA
 
 ## Database
 
-Collections: `demos`, `capabilities`, `demo_assets`, `documentation_snapshots`, `github_sync_jobs`, `audit_logs`, `user_roles`, `catalog_settings`. Migrations (`lib/db/migrations.ts`) create these indexes:
+Collections: `demos`, `capabilities`, `demo_assets`, `documentation_snapshots`, `github_sync_jobs`, `audit_logs`, `catalog_settings`. Migrations (`lib/db/migrations.ts`) create these indexes:
 
 - unique `slug`
 - `status`
@@ -100,4 +99,4 @@ A demo's `themeMode` (`mongodb` | `customer` | `custom`) and `customerTheme` onl
 | `pnpm test:e2e` | Playwright (desktop + mobile) |
 | `pnpm db:migrate` / `pnpm db:seed` | Idempotent DB setup |
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Vercel deployment.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for running the Hub locally.

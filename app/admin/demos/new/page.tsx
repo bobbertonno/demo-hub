@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { AccessState } from '@/components/admin/access-state'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { DemoEditor } from '@/components/admin/demo-editor'
 import { checkPageRole } from '@/lib/auth/session'
@@ -53,7 +52,6 @@ const BLANK: DemoInput = {
 
 export default async function NewDemoPage() {
   const access = await checkPageRole('contributor')
-  if (!access.ok) return <AccessState reason={access.reason} path="/admin/demos/new" />
   const mode = getCatalogMode()
   return (
     <AdminShell
